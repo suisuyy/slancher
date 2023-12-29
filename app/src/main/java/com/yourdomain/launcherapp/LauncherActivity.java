@@ -44,6 +44,7 @@ import android.webkit.WebResourceRequest;
 import android.webkit.WebResourceError;
 import android.webkit.ConsoleMessage;
 
+
 public class LauncherActivity extends Activity {
     private PackageManager packageManager;
     private GridView appsGrid;
@@ -68,6 +69,26 @@ public class LauncherActivity extends Activity {
 
         packageManager = getPackageManager();
         appsGrid = (GridView) findViewById(R.id.apps_grid);
+		appsGrid.setOnTouchListener(new View.OnTouchListener() {
+			@Override
+			public boolean onTouch(View v, MotionEvent event) {
+				// The onTouchEvent will be triggered before the ScrollView touches, so we can disable the scroll here
+				switch (event.getAction()) {
+					case MotionEvent.ACTION_DOWN:
+						// Disables the ScrollView to intercept touch events
+						v.getParent().requestDisallowInterceptTouchEvent(true);
+						break;
+					case MotionEvent.ACTION_UP:
+						// Allows ScrollView to intercept touch events
+						v.getParent().requestDisallowInterceptTouchEvent(false);
+						break;
+				}
+				// Handle WebView touch events
+				v.onTouchEvent(event);
+				return true;
+			}
+		});
+
 
 //		setViewSizeByPercentage(appsGrid,100,60);
 
@@ -181,9 +202,6 @@ public class LauncherActivity extends Activity {
 		webView.getSettings().setDatabasePath(appCachePath);
 		webView.getSettings().setMediaPlaybackRequiresUserGesture(false); // May be necessary to play audio without user interaction
 
-
-
-
 		webView.setOnTouchListener(new View.OnTouchListener() {
 			@Override
 			public boolean onTouch(View v, MotionEvent event) {
@@ -292,7 +310,7 @@ public class LauncherActivity extends Activity {
 			@Override
 			public void onClick(View v) {
 				Intent intent = new Intent(LauncherActivity.this, SettingsActivity.class);
-				freeLaunch((intent));
+				StartFreeFormIntent.start(LauncherActivity.this,(intent));
 			}
 		});
 
@@ -457,7 +475,7 @@ public class LauncherActivity extends Activity {
 							intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 
 							// Start the activity
-							freeLaunch(intent);
+							StartFreeFormIntent.start(LauncherActivity.this,intent);
 						} else {
 							// Log an error or show a message if the intent is null
 							Log.e("LauncherActivity", "Intent is null for package: " + app.packageName);
@@ -509,7 +527,9 @@ public class LauncherActivity extends Activity {
 	}
 	private void refreshAppList() {
 		loadApps(); // Load installed apps again
+/*
 		appsGrid.setAdapter(new AppsAdapter(this, appsList));
+*/
 		//((BaseAdapter) appsGrid.getAdapter()).notifyDataSetChanged(); // Notify the adapter to refresh the grid
 	}
 	
