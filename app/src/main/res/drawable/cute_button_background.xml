@@ -1,0 +1,19 @@
+<!-- res/drawable/cute_button_background.xml -->
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:state_pressed="true">
+        <shape android:shape="rectangle">
+            <solid android:color="#FFC3B1E1"/>
+            <corners android:radius="50dp"/>
+        </shape>
+    </item>
+    <item>
+        <shape android:shape="rectangle">
+            <gradient
+                android:startColor="@color/cute_button_start"
+                android:endColor="@color/cute_button_end"
+                android:angle="270"/>
+            <corners android:radius="50dp"/>
+            <stroke android:color="@color/cute_button_stroke" android:width="2dp"/>
+        </shape>
+    </item>
+</selector>

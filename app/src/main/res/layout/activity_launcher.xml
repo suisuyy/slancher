@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:tools="http://schemas.android.com/tools"
+	android:layout_width="match_parent"
+	android:layout_height="wrap_content"
+	android:fillViewport="true"
+
+	>
+
+	<LinearLayout
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:orientation="vertical"
+		tools:ignore="WebViewLayout">
+
+
+		<EditText
+			android:inputType="textMultiLine"
+			android:id="@+id/url_input"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:autofillHints=""
+			android:hint="Enter URL"
+			android:text="https://voigptcn.pages.dev" />
+
+		<!-- SearchView for searching apps -->
+
+		<!-- Button to refresh content -->
+
+		<LinearLayout
+			android:layout_width="match_parent"
+			android:layout_height="match_parent"
+			android:orientation="horizontal">
+
+			<Button
+				style="@style/FuturisticButton"
+				android:id="@+id/open_url_button"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:text="Open URL" />
+
+			<Button
+				style="@style/FuturisticButton"
+				android:id="@+id/increase_height_button"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:text="add" />
+
+			<Button
+
+				android:id="@+id/decrease_height_button"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				style="@style/FuturisticButton"
+
+				android:text="dec" />
+
+			<Button
+				style="@style/FuturisticButton"
+
+				android:id="@+id/settings_button"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:text="Settings" />
+
+			<Button
+				style="@style/FuturisticButton"
+				android:id="@+id/change_webview_button"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:text="Switch" />
+		</LinearLayout>
+
+
+
+
+
+
+
+			<FrameLayout
+				android:id="@+id/webview_container"
+				android:layout_width="match_parent"
+				android:layout_height="0dp"
+				android:layout_weight="1">
+
+				<WebView
+					android:id="@+id/webview1"
+					android:layout_width="match_parent"
+					android:layout_height="match_parent"
+					android:visibility="visible" />
+
+				<WebView
+					android:id="@+id/webview2"
+					android:layout_width="match_parent"
+					android:layout_height="match_parent"
+					android:visibility="gone" />
+
+				<WebView
+					android:id="@+id/webview3"
+					android:layout_width="match_parent"
+					android:layout_height="match_parent"
+					android:visibility="gone" />
+			</FrameLayout>
+
+
+
+
+
+		<SearchView
+			android:id="@+id/search_view"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:iconifiedByDefault="false"
+			android:queryHint="Search apps" />
+
+		<Button
+			android:id="@+id/refresh_button"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:text="Refresh" />
+
+		<!-- GridView for displaying apps -->
+
+		<GridView
+			android:id="@+id/apps_grid"
+			android:layout_width="match_parent"
+			android:layout_height="524dp"
+			android:columnWidth="100dp"
+			android:gravity="center"
+			android:horizontalSpacing="10dp"
+			android:minHeight="500dp"
+			android:numColumns="auto_fit"
+			android:stretchMode="columnWidth"
+			android:verticalSpacing="10dp" />
+
+		<LinearLayout
+			android:layout_width="match_parent"
+			android:layout_height="match_parent"
+			android:orientation="horizontal"></LinearLayout>
+
+	</LinearLayout>
+</ScrollView>
