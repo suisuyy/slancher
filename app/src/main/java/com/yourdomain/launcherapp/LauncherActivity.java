@@ -235,7 +235,7 @@ public class LauncherActivity extends Activity {
 					Log.d("MyApplication", consoleMessage.message() + " -- From line "
 						  + consoleMessage.lineNumber() + " of "
 						  + consoleMessage.sourceId());
-						  showtoast(consoleMessage.message());
+						 // showtoast(consoleMessage.message());
 					return super.onConsoleMessage(consoleMessage);
 				}
 				
@@ -252,7 +252,7 @@ public class LauncherActivity extends Activity {
 				public void onReceivedError(WebView view, WebResourceRequest request, WebResourceError error) {
 					super.onReceivedError(view, request, error);
 					// Handle error
-					showtoast(error.toString());
+					//showtoast(error.toString());
 				}
 				
 				

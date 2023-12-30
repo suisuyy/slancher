@@ -11,6 +11,8 @@ public class StartFreeFormIntent {
 
     // Function to launch an app in freeform window mode using an Intent
     public static void launchAppInFreeformWindow(Context context, Intent intent, int left, int top, int width, int height) {
+
+
         // Set the bounds for the freeform window
         Rect bounds = new Rect(left, top, left + width, top + height);
 
