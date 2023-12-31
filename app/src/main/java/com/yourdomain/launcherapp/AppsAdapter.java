@@ -51,7 +51,7 @@ public class AppsAdapter extends BaseAdapter {
             holder = new ViewHolder();
             holder.icon = (ImageView) convertView.findViewById(R.id.item_app_icon);
             holder.label = (TextView) convertView.findViewById(R.id.item_app_label);
-            holder.label.setTextSize(7);
+            holder.label.setTextSize(12);
             holder.label.setPadding(6,0,0,0);
             convertView.setTag(holder);
         } else {
@@ -61,8 +61,21 @@ public class AppsAdapter extends BaseAdapter {
         AppDetail app = appsList.get(position);
         holder.icon.setImageDrawable(app.icon);
         holder.label.setText("" );
-        holder.label.setText(app.label + " " +(app.isPinned ? "P" : "") );
+        holder.label.setText("  " +(app.isPinned ? "#" : " " )+ getSubstringSafe(app.label.toString(),0,
+                5) ) ;
 
         return convertView;
     }
+
+    private static String getSubstringSafe(String input, int beginIndex, int endIndex) {
+        // Check if the string is long enough
+        if (input.length() >= endIndex) {
+            // Get the substring if the length is sufficient
+            return input.substring(beginIndex, endIndex);
+        } else {
+            // If the length is less than endIndex, get the substring until the end of the string
+            return input.substring(beginIndex);
+        }
+    }
+
 }

@@ -3,6 +3,8 @@ pluginManagement {
         google()
         mavenCentral()
         gradlePluginPortal()
+        maven(url = "https://jitpack.io")
+
     }
 }
 dependencyResolutionManagement {
@@ -12,6 +14,8 @@ dependencyResolutionManagement {
         mavenCentral()
     }
 }
+
+
 
 rootProject.name = "slancher"
 include(":app")
