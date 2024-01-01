@@ -15,6 +15,7 @@ public class AppsAdapter extends BaseAdapter {
     private List<AppDetail> appsList;
     private LayoutInflater layoutInflater;
     private PackageManager packageManager;
+    private int fontSize=8;
 
     public AppsAdapter(Context context, List<AppDetail> appsList) {
         this.appsList = appsList;
@@ -51,7 +52,7 @@ public class AppsAdapter extends BaseAdapter {
             holder = new ViewHolder();
             holder.icon = (ImageView) convertView.findViewById(R.id.item_app_icon);
             holder.label = (TextView) convertView.findViewById(R.id.item_app_label);
-            holder.label.setTextSize(12);
+            holder.label.setTextSize(this.fontSize);
             holder.label.setPadding(6,0,0,0);
             convertView.setTag(holder);
         } else {

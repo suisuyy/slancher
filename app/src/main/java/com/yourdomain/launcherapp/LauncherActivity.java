@@ -64,6 +64,9 @@ import android.webkit.WebResourceRequest;
 import android.webkit.WebResourceError;
 import android.webkit.ConsoleMessage;
 
+import com.yourdomain.launcherapp.libs.LauncherModel;
+import com.yourdomain.launcherapp.libs.Utils;
+
 
 public class LauncherActivity extends Activity {
 	private static final int ACTION_MANAGE_WRITE_SETTINGS_PERMISSION_REQUEST_CODE = 11;
@@ -77,7 +80,8 @@ public class LauncherActivity extends Activity {
 	private String[] urls = new String[5]; // Array to hold the URLs for each WebView
 	private EditText urlInput;
 
-	private ValueCallback<Uri[]> mUploadMessageArr;
+	public LauncherModel launcherModel;
+
 
 	//webview
 	private ValueCallback<Uri> mUploadMessage;
@@ -89,109 +93,36 @@ public class LauncherActivity extends Activity {
 
 	@Override
     protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+		super.onCreate(savedInstanceState);
 
-		if (!Settings.System.canWrite(this)) {
-			// If the WRITE_SETTINGS permission is not granted, open the system settings to request permission
-			Intent intent = new Intent(Settings.ACTION_MANAGE_WRITE_SETTINGS);
-			intent.setData(Uri.parse("package:" + getPackageName()));
-			startActivityForResult(intent, ACTION_MANAGE_WRITE_SETTINGS_PERMISSION_REQUEST_CODE);
-		}
-        setContentView(R.layout.activity_launcher);
-		if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
-			ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.RECORD_AUDIO}, 1);
-		}
-
-			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-				if (checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-					requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
-				}
-			}
-
-		if (checkSelfPermission(Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
-			requestPermissions(new String[]{Manifest.permission.CAMERA}, 1);
-		}
-
-		if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-			requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 1);
-		}
-
-
-
+		setContentView(R.layout.activity_launcher);
 
         packageManager = getPackageManager();
-        appsGrid = (GridView) findViewById(R.id.apps_grid);
-		appsGrid.setOnTouchListener(new View.OnTouchListener() {
-			@Override
-			public boolean onTouch(View v, MotionEvent event) {
-				// The onTouchEvent will be triggered before the ScrollView touches, so we can disable the scroll here
-				switch (event.getAction()) {
-					case MotionEvent.ACTION_DOWN:
-						// Disables the ScrollView to intercept touch events
-						v.getParent().requestDisallowInterceptTouchEvent(true);
-						break;
-					case MotionEvent.ACTION_UP:
-						// Allows ScrollView to intercept touch events
-						v.getParent().requestDisallowInterceptTouchEvent(false);
-						break;
-				}
-				// Handle WebView touch events
-				v.onTouchEvent(event);
-				return true;
-			}
-		});
 
+		launcherModel=new LauncherModel(this);
 
-//		setViewSizeByPercentage(appsGrid,100,60);
-
-		Button refreshButton = findViewById(R.id.refresh_button);
-		refreshButton.setOnClickListener(new View.OnClickListener() {
-				@Override
-				public void onClick(View v) {
-					refreshAppList(); // Refresh the app list when the button is clicked
-				}
-			});
-
-		loadApps();
+		setupAppgridView();
 		loadWeb();
 		addEventListener();
-		addGridListeners();
+
+		requestPermissions();
+
+
 
 		
     }
-	private void setViewSizeByPercentage(View v, int w, int h){
-		ViewGroup.LayoutParams layoutParams=v.getLayoutParams();
-
-		layoutParams.width=w /100 * getResources().getDisplayMetrics().widthPixels;
-		layoutParams.height=h/100 *getResources().getDisplayMetrics().heightPixels;
-		v.setLayoutParams((layoutParams));
-	}
 
 	@Override
 	protected void onResume() {
 		super.onResume();
 
-		// Apply settings to WebView and GridView
-		SharedPreferences prefs = getSharedPreferences("AppSettings", MODE_PRIVATE);
-		String defaultUrl = prefs.getString("defaultUrl", "https://voigptcn.pages.dev");
-		int webViewWidth = prefs.getInt("webViewWidth", ViewGroup.LayoutParams.MATCH_PARENT);
-		int webViewHeightPercentage = prefs.getInt("webViewHeightPercentage", 80);
-		int gridViewColumns = prefs.getInt("gridViewColumns", 8);
 
-
-		/*ViewGroup.LayoutParams webViewParams = webView.getLayoutParams();
-		webViewParams.width = webViewWidth;
-		webViewParams.height = webViewHeightPercentage * getResources().getDisplayMetrics().heightPixels / 100;
-		webView.setLayoutParams(webViewParams);
-		webView.loadUrl(defaultUrl);*/
-
-		GridView gridView = findViewById(R.id.apps_grid);
-		gridView.setNumColumns(gridViewColumns);
 	}
 
 	@Override
 	public void onActivityResult(int requestCode, int resultCode, Intent intent)
 	{
+		//for webview file pick
 		if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
 		{
 			if (requestCode == REQUEST_SELECT_FILE)
@@ -219,20 +150,54 @@ public class LauncherActivity extends Activity {
 	@Override
 	public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
 		super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-		if (requestCode == 1) {
 			if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-				// Permission granted, set up the WebView to record audio
-				loadWeb();
-				showtoast("audio granted");
+				showtoast(permissions+ " granted");
 			} else {
-				// Permission denied, inform the user that audio recording won't work
-				showtoast("audio not granted");
-				
-				}
+				showtoast(permissions+ " not granted");
+		    }
+	}
+
+	public void requestPermissions() {
+		List<String> permissionsToRequest = new ArrayList<>();
+
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+			if (checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+				permissionsToRequest.add(Manifest.permission.WRITE_EXTERNAL_STORAGE);
+			}
+
+			if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
+				permissionsToRequest.add(Manifest.permission.RECORD_AUDIO);
+			}
+
+			if (checkSelfPermission(Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+				permissionsToRequest.add(Manifest.permission.CAMERA);
+			}
+
+			if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+				permissionsToRequest.add(Manifest.permission.ACCESS_FINE_LOCATION);
+			}
+
+			if (!Settings.System.canWrite(this)) {
+				// If the WRITE_SETTINGS permission is not granted, open the system settings to request permission
+				permissionsToRequest.add(Settings.ACTION_MANAGE_WRITE_SETTINGS);
+			}
+
+			if (!permissionsToRequest.isEmpty()) {
+				String[] permissionsArray = permissionsToRequest.toArray(new String[0]);
+				requestPermissions(permissionsArray, 1);
+			}
 		}
 	}
-	
-	
+
+	private void  setupAppgridView(){
+		appsGrid=findViewById(R.id.apps_grid);
+		Utils.setViewSizeByPercentageOfScreen(this,appsGrid,launcherModel.appgridViewWidth,
+				launcherModel.appgridViewHeight);
+		addGridListeners();
+		loadApps();
+
+
+	}
 	private  void  loadWeb(){
 		webview1 = findViewById(R.id.webview1);
 		webview2 = findViewById(R.id.webview2);
@@ -258,16 +223,8 @@ public class LauncherActivity extends Activity {
 		for (WebView webView:
 			 webViews) {
 			setWebView(webView);
-
-
-			int webViewWidth = prefs.getInt("webViewWidth", ViewGroup.LayoutParams.MATCH_PARENT);
-			int webViewHeight = prefs.getInt("webViewHeight", 500);
-
-
-		ViewGroup.LayoutParams webViewParams = webView.getLayoutParams();
-		webViewParams.width = webViewWidth;
-		webViewParams.height =webViewHeight;
-		webView.setLayoutParams((webViewParams));
+			Utils.setViewSizeByPercentageOfScreen(this,webView,launcherModel.webViewWidth,
+					launcherModel.webViewHeight);
 
 		}
 		
@@ -278,7 +235,6 @@ public class LauncherActivity extends Activity {
 		// Enable JavaScript if required by the web content
         webView.getSettings().setJavaScriptEnabled(true);
 		webView.getSettings().setDomStorageEnabled(true);
-		//webView.getSettings().setAppCacheEnabled(true);
 		webView.getSettings().setCacheMode(WebSettings.LOAD_DEFAULT);
 		String appCachePath = getApplicationContext().getCacheDir().getAbsolutePath();
 		webView.getSettings().setDatabasePath(appCachePath);
@@ -484,17 +440,42 @@ public class LauncherActivity extends Activity {
 				}
 			});
 
-
-
-		
-			
-			
-		
 	}
 
 	private void addEventListener(){
 		Button settingsButton = findViewById(R.id.settings_button);
 		Button fullscreenButton=findViewById(R.id.fullscreenButton);
+		Button refreshButton = findViewById(R.id.refresh_button);
+		Button increaseHeightButton = findViewById(R.id.increase_height_button);
+
+
+		refreshButton.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				refreshAppList(); // Refresh the app list when the button is clicked
+			}
+		});
+
+
+		appsGrid.setOnTouchListener(new View.OnTouchListener() {
+			@Override
+			public boolean onTouch(View v, MotionEvent event) {
+				// The onTouchEvent will be triggered before the ScrollView touches, so we can disable the scroll here
+				switch (event.getAction()) {
+					case MotionEvent.ACTION_DOWN:
+						// Disables the ScrollView to intercept touch events
+						v.getParent().requestDisallowInterceptTouchEvent(true);
+						break;
+					case MotionEvent.ACTION_UP:
+						// Allows ScrollView to intercept touch events
+						v.getParent().requestDisallowInterceptTouchEvent(false);
+						break;
+				}
+				// Handle WebView touch events
+				v.onTouchEvent(event);
+				return true;
+			}
+		});
 
 		fullscreenButton.setOnClickListener(new View.OnClickListener() {
 			@Override
@@ -532,15 +513,20 @@ public class LauncherActivity extends Activity {
 			}
 		});
 
-		Button increaseHeightButton = findViewById(R.id.increase_height_button);
 		increaseHeightButton.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				WebView webView=webViews[currentWebViewIndex];
+				launcherModel.webViewHeight+=10;
+				launcherModel.saveSettings();
+				for (WebView webview :
+						webViews) {
+					Utils.setViewSizeByPercentageOfScreen(LauncherActivity.this,webview,
+							launcherModel.webViewWidth,
+							launcherModel.webViewHeight
+					);
+				}
 
-				ViewGroup.LayoutParams params = webView.getLayoutParams();
-				params.height += 200;
-				webView.setLayoutParams(params);
+
 
 
 			}
@@ -550,10 +536,15 @@ public class LauncherActivity extends Activity {
 		decreaseHeightButton.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				WebView webView=webViews[currentWebViewIndex];
-				ViewGroup.LayoutParams params = webView.getLayoutParams();
-				params.height -= 200; // Decrease height by 10dp
-				webViews[currentWebViewIndex].setLayoutParams(params);
+				launcherModel.webViewHeight-=10;
+				launcherModel.saveSettings();
+				for (WebView webview :
+						webViews) {
+					Utils.setViewSizeByPercentageOfScreen(LauncherActivity.this,webview,
+							launcherModel.webViewWidth,
+							launcherModel.webViewHeight
+					);
+				}
 			}
 		});
 
