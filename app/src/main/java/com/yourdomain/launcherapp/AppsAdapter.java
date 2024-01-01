@@ -2,27 +2,39 @@ package com.yourdomain.launcherapp;
 
 import android.content.Context;
 import android.content.pm.PackageManager;
-import android.content.pm.ResolveInfo;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import com.yourdomain.launcherapp.libs.LauncherModel;
+
 import java.util.List;
 
 public class AppsAdapter extends BaseAdapter {
     private List<AppDetail> appsList;
     private LayoutInflater layoutInflater;
     private PackageManager packageManager;
-    private int fontSize=8;
+    private int appLabelSize =8;
 
     public AppsAdapter(Context context, List<AppDetail> appsList) {
         this.appsList = appsList;
         this.packageManager = context.getPackageManager();
         this.layoutInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+
+
     }
 
+    public AppsAdapter(Context context, List<AppDetail> appsList,int appLabelSize) {
+        this.appsList = appsList;
+        this.packageManager = context.getPackageManager();
+        this.layoutInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+
+        this.appLabelSize =appLabelSize;
+
+    }
     @Override
     public int getCount() {
         return appsList.size();
@@ -52,7 +64,7 @@ public class AppsAdapter extends BaseAdapter {
             holder = new ViewHolder();
             holder.icon = (ImageView) convertView.findViewById(R.id.item_app_icon);
             holder.label = (TextView) convertView.findViewById(R.id.item_app_label);
-            holder.label.setTextSize(this.fontSize);
+            holder.label.setTextSize(this.appLabelSize);
             holder.label.setPadding(6,0,0,0);
             convertView.setTag(holder);
         } else {
@@ -61,9 +73,8 @@ public class AppsAdapter extends BaseAdapter {
 
         AppDetail app = appsList.get(position);
         holder.icon.setImageDrawable(app.icon);
-        holder.label.setText("" );
-        holder.label.setText("  " +(app.isPinned ? "#" : " " )+ getSubstringSafe(app.label.toString(),0,
-                5) ) ;
+        holder.label.setText((app.isPinned ? "#" : " " )+ getSubstringSafe(app.label.toString(),0,
+                4) ) ;
 
         return convertView;
     }

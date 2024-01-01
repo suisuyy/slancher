@@ -18,11 +18,10 @@
 			android:id="@+id/url_input"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			android:autofillHints=""
 			android:hint="Enter URL"
-			android:inputType="textMultiLine"
 			android:minLines="2"
-			android:text="https://voigptcn.pages.dev" />
+			android:focusedByDefault="false"
+			/>
 
 		<!-- SearchView for searching apps -->
 

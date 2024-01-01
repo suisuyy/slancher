@@ -1,50 +1,49 @@
-<!-- activity_settings.xml -->
-
-<ScrollView
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    tools:context=".MainActivity">
 
-    <LinearLayout
+    <EditText
+        android:id="@+id/editText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="16dp">
+        android:layout_above="@+id/importButton"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="16dp"
+        android:gravity="top"
+        android:hint="Paste settings json  here..."
+        android:inputType="textMultiLine"
+        android:lines="10" />
 
-        <EditText
-            android:id="@+id/default_url_input"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Default URL"
-            android:inputType="textUri" />
+    <Button
+        android:id="@+id/importButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginStart="23dp"
+        android:layout_marginBottom="478dp"
+        android:onClick="onImportButtonClick"
+        android:text="Import" />
 
-        <EditText
-            android:id="@+id/webview_width_input"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="WebView Width (0 for MATCH_PARENT)"
-            android:inputType="number" />
+    <Button
+        android:id="@+id/exportButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginEnd="160dp"
+        android:layout_marginBottom="481dp"
+        android:onClick="onExportButtonClick"
+        android:text="Export" />
 
-        <EditText
-            android:id="@+id/webview_height_input"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="WebView Height Percentage (e.g., 80 for 80%)"
-            android:inputType="number" />
 
-        <EditText
-            android:id="@+id/gridview_columns_input"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="GridView Columns (e.g., 8)"
-            android:inputType="number" />
+</RelativeLayout>
 
-        <Button
-            android:id="@+id/save_settings_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Save Settings"
-            android:onClick="saveSettings" />
 
-    </LinearLayout>
-</ScrollView>
+

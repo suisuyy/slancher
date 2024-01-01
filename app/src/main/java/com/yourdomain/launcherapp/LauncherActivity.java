@@ -77,7 +77,6 @@ public class LauncherActivity extends Activity {
 	private WebView webview1, webview2, webview3, webview4, webview5;
 	private WebView[] webViews;
 	private int currentWebViewIndex = 0;
-	private String[] urls = new String[5]; // Array to hold the URLs for each WebView
 	private EditText urlInput;
 
 	public LauncherModel launcherModel;
@@ -191,6 +190,8 @@ public class LauncherActivity extends Activity {
 
 	private void  setupAppgridView(){
 		appsGrid=findViewById(R.id.apps_grid);
+		appsGrid.setNumColumns(launcherModel.appgridViewColums);
+
 		Utils.setViewSizeByPercentageOfScreen(this,appsGrid,launcherModel.appgridViewWidth,
 				launcherModel.appgridViewHeight);
 		addGridListeners();
@@ -210,14 +211,10 @@ public class LauncherActivity extends Activity {
 
 		// Load saved URLs or default ones
 		SharedPreferences prefs = getSharedPreferences("AppSettings", MODE_PRIVATE);
-		urls[0] = prefs.getString("url1", "https://google.com");
-		urls[1] = prefs.getString("url2", "https://bing.com");
-		urls[2] = prefs.getString("url3", "https://chat.openai.com");
-		urls[3] = prefs.getString("url4", "https://chat.openai.com");
-		urls[4] = prefs.getString("url5", "https://chat.openai.com");
+
 
 		// Load the initial URL into the first WebView
-		urlInput.setText(urls[0]);
+		urlInput.setText(launcherModel.urls[0]);
 		webview1.setVisibility(View.VISIBLE);
 
 		for (WebView webView:
@@ -432,7 +429,7 @@ public class LauncherActivity extends Activity {
 					String url = urlInput.getText().toString().trim();
 					if (!url.isEmpty()) {
 						if (!url.startsWith("http://") && !url.startsWith("https://")) {
-							url = "http://" + url; // Add scheme if missing
+							url = launcherModel.searchEnginUrl + url; // Add scheme if missing
 						}
 						webView.clearCache(true);
 						webView.loadUrl(url); // Load the URL in the WebView
@@ -554,22 +551,47 @@ public class LauncherActivity extends Activity {
 			@Override
 			public void onClick(View v) {
 				// Save the current URL before switching
-				urls[currentWebViewIndex] = urlInput.getText().toString();
-				saveUrls();
-
-				// Hide all WebViews
-				for (WebView wv : webViews) {
-					wv.setVisibility(View.GONE);
-				}
+				launcherModel.urls[currentWebViewIndex] = urlInput.getText().toString();
+				launcherModel.saveSettings();
 
 				// Increment index to switch to the next WebView
 				currentWebViewIndex = (currentWebViewIndex + 1) % webViews.length;
 				changeWebViewButton.setText("▷"+currentWebViewIndex);
 
 				// Show the next WebView and update the URL input field
+				urlInput.setText(launcherModel.urls[currentWebViewIndex]);
+
+				// Hide all WebViews
+				for (WebView wv : webViews) {
+					wv.setVisibility(View.GONE);
+				}
 				webViews[currentWebViewIndex].setVisibility(View.VISIBLE);
-				urlInput.setText(urls[currentWebViewIndex]);
-//				webViews[currentWebViewIndex].loadUrl(urls[currentWebViewIndex]);
+			}
+
+
+		});
+		changeWebViewButton.setOnLongClickListener(new View.OnLongClickListener() {
+			@Override
+			public boolean onLongClick(View v) {
+
+				launcherModel.urls[currentWebViewIndex] = urlInput.getText().toString();
+				launcherModel.saveSettings();
+
+
+
+				// Increment index to switch to the next WebView
+				currentWebViewIndex = 0;
+				changeWebViewButton.setText("▷"+currentWebViewIndex);
+
+				// Show the next WebView and update the URL input field
+				urlInput.setText(launcherModel.urls[currentWebViewIndex]);
+				// Hide all WebViews
+				for (WebView wv : webViews) {
+					wv.setVisibility(View.GONE);
+				}
+				webViews[currentWebViewIndex].setVisibility(View.VISIBLE);
+
+				return true;
 			}
 		});
 
@@ -685,16 +707,6 @@ public class LauncherActivity extends Activity {
 
 	}
 
-	// Helper method to convert dp to pixels
-
-	private void saveUrls() {
-		SharedPreferences prefs = getSharedPreferences("AppSettings", MODE_PRIVATE);
-		SharedPreferences.Editor editor = prefs.edit();
-		editor.putString("url1", urls[0]);
-		editor.putString("url2", urls[1]);
-		editor.putString("url3", urls[2]);
-		editor.apply();
-	}
 
 	private  void freeLaunch(Intent intent){
 
@@ -768,7 +780,7 @@ public class LauncherActivity extends Activity {
 
         }
 
-		appsGrid.setAdapter(new AppsAdapter(this, appsList));
+		appsGrid.setAdapter(new AppsAdapter(this, appsList,launcherModel.appLabelSize));
 		
     }
 

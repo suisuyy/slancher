@@ -6,8 +6,10 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import android.util.DisplayMetrics;
+import android.widget.Toast;
 
 public class Utils {
+
 
     public static void setViewSizeByPercentageOfParent(View view, int widthPercentage, int heightPercentage) {
         if (view == null || !(view.getParent() instanceof View)) {
@@ -29,6 +31,7 @@ public class Utils {
 
         view.setLayoutParams(layoutParams);
     }
+
 
 
     public static void setViewSizeByPercentageOfScreen(Context context, View view, int widthPercentage, int heightPercentage) {

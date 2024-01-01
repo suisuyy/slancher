@@ -23,14 +23,23 @@ public class LauncherModel {
     public int gridViewHeight = 400;
     public int webViewHeight = 50;
     public int webViewWidth = 100;
-    public int webViewNumber = 3;
+    public int webViewNumber = 5;
     public int appgridViewWidth = 100;
     public int appgridViewHeight = 50;
-    public String[] urls = new String[0];
+    public int appgridViewColums = 8;
+
+    public int appLabelSize=9;
+
+    public String searchEnginUrl="https://google.com/search?q=";
+
+    public String[] urls = new String[webViewNumber];
     public int[] intArray = new int[0];
 
     public LauncherModel(Context context) {
         prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        for (int i = 0; i < urls.length    ; i++) {
+            urls[i]="";
+        }
         loadSettings(); // Load settings when the model is instantiated
     }
 
@@ -69,6 +78,34 @@ public class LauncherModel {
         return settings.toString();
     }
 
+    public String exportToJsonNice() throws JSONException {
+            JSONObject settings = new JSONObject();
+            try {
+                for (Field field : this.getClass().getDeclaredFields()) {
+                    // Skip static fields
+                    if (Modifier.isStatic(field.getModifiers())) {
+                        continue;
+                    }
+                    field.setAccessible(true); // Allow access to private fields
+
+                    if (field.getType() == String[].class) {
+                        // Convert String[] to JSONArray
+                        settings.putOpt(field.getName(), new JSONArray((String[]) field.get(this)));
+                    } else if (field.getType() == int[].class) {
+                        // Convert int[] to JSONArray
+                        settings.putOpt(field.getName(), new JSONArray((int[]) field.get(this)));
+                    } else {
+                        settings.putOpt(field.getName(), field.get(this));
+                    }
+                }
+            } catch (IllegalAccessException | JSONException e) {
+                e.printStackTrace();
+            }
+
+            // Add indentation and newline for a nicely formatted JSON
+            return settings.toString(2); // You can adjust the number of spaces for indentation
+
+    }
     // Parses a JSON string and updates the member variables accordingly
     public void importFromJson(String jsonString) {
         try {
