@@ -43,6 +43,8 @@ import android.content.Intent;
 import android.widget.AdapterView;
 import android.view.View;
 import android.widget.BaseAdapter;
+import android.widget.ScrollView;
+import android.widget.SearchView;
 import android.widget.SeekBar;
 import android.widget.Toast;
 import android.content.SharedPreferences;
@@ -69,11 +71,11 @@ import com.yourdomain.launcherapp.libs.Utils;
 
 
 public class LauncherActivity extends Activity {
-	private static final int ACTION_MANAGE_WRITE_SETTINGS_PERMISSION_REQUEST_CODE = 11;
 	private PackageManager packageManager;
     private GridView appsGrid;
     private List<AppDetail> appsList;
 
+	private ScrollView scrollView;
 	private WebView webview1, webview2, webview3, webview4, webview5;
 	private WebView[] webViews;
 	private int currentWebViewIndex = 0;
@@ -95,6 +97,7 @@ public class LauncherActivity extends Activity {
 		super.onCreate(savedInstanceState);
 
 		setContentView(R.layout.activity_launcher);
+		scrollView=findViewById(R.id.rootScroolView);
 
         packageManager = getPackageManager();
 
@@ -112,10 +115,33 @@ public class LauncherActivity extends Activity {
     }
 
 	@Override
+	public boolean onKeyDown(int keyCode, KeyEvent event) {
+		if (keyCode == KeyEvent.KEYCODE_BACK) {
+			// Handle the Home button press
+			// Perform your custom logic here
+			Utils.setViewSizeByPercentageOfScreen(LauncherActivity.this,webViews[currentWebViewIndex],launcherModel.webViewWidth,
+					launcherModel.webViewHeight);
+
+			return false; // Consume the event
+		}
+
+		return super.onKeyDown(keyCode, event);
+	}
+
+	@Override
 	protected void onResume() {
 		super.onResume();
+		Utils.setViewSizeByPercentageOfScreen(LauncherActivity.this,webViews[currentWebViewIndex],launcherModel.webViewWidth,
+				launcherModel.webViewHeight);
+		loadApps();
 
+	}
 
+	@Override
+	protected void onUserLeaveHint() {
+		super.onUserLeaveHint();
+		// The Home button was pressed or the user switched to another app
+		// Handle your logic here
 	}
 
 	@Override
@@ -406,6 +432,10 @@ public class LauncherActivity extends Activity {
 									webView.goBack();
 									return true;
 								}
+
+							case  KeyEvent.KEYCODE_HOME:
+								//not work to home key
+
 								break;
 						}
 					}
@@ -445,6 +475,64 @@ public class LauncherActivity extends Activity {
 		Button refreshButton = findViewById(R.id.refresh_button);
 		Button increaseHeightButton = findViewById(R.id.increase_height_button);
 
+		SearchView searchView = findViewById(R.id.search_view);
+
+		// Set up the OnQueryTextListener to listen for query text changes
+		searchView.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				scrollView.fullScroll(ScrollView.FOCUS_DOWN);
+				searchView.requestFocus();
+			}
+		});
+
+
+		searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+			@Override
+			public boolean onQueryTextSubmit(String query) {
+				// Handle the query text submission (e.g., perform a search)
+				return false;
+			}
+
+			@Override
+			public boolean onQueryTextChange(String newText) {
+				// Handle the query text change (e.g., filter data based on the new text)
+				// newText contains the updated query text
+				// You can perform your desired actions here
+				scrollView.fullScroll(ScrollView.FOCUS_DOWN);
+				searchView.requestFocus();
+
+				if(newText.length()<=0){
+					loadApps();
+				}
+
+				appsList=new ArrayList<>();
+
+				Intent i = new Intent(Intent.ACTION_MAIN, null);
+				i.addCategory(Intent.CATEGORY_LAUNCHER);
+				List<ResolveInfo> availableActivities = packageManager.queryIntentActivities(i, 0);
+
+				for (ResolveInfo ri : availableActivities) {
+					AppDetail app = new AppDetail();
+					app.label = ri.loadLabel(packageManager);
+					app.packageName = ri.activityInfo.packageName;
+					app.icon = ri.activityInfo.loadIcon(packageManager);
+					app.isPinned = loadPinnedStatus(app.packageName.toString());
+					if(app.label.toString().toLowerCase().contains(newText.toLowerCase())){
+						appsList.add(app);
+
+					}
+				}
+
+				Collections.sort(appsList);
+
+
+				appsGrid.setAdapter(new AppsAdapter(LauncherActivity.this, appsList,launcherModel.appLabelSize));
+
+				return true;
+			}
+		});
+
 
 		refreshButton.setOnClickListener(new View.OnClickListener() {
 			@Override
@@ -482,9 +570,11 @@ public class LauncherActivity extends Activity {
 					if ((getWindow().getAttributes().flags & WindowManager.LayoutParams.FLAG_FULLSCREEN) != 0) {
 						// Currently in fullscreen mode, revert back to normal mode
 						getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+
 					} else {
 						// Currently in normal mode, switch to fullscreen mode
 						getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+						setViewSizeToFullScreen(webViews[currentWebViewIndex]);
 
 					}
 
@@ -866,6 +956,16 @@ public class LauncherActivity extends Activity {
 		toast.show();
 		
 		
+	}
+
+	private void setViewSizeToFullScreen(View view) {
+		// Get screen height and width
+		int screenHeight = getResources().getDisplayMetrics().heightPixels;
+		int screenWidth = getResources().getDisplayMetrics().widthPixels;
+
+		// Set the height and width of the view to 100% of the screen
+		view.getLayoutParams().height = screenHeight;
+		view.getLayoutParams().width = screenWidth;
 	}
 	
 	

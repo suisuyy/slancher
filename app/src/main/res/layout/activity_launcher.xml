@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:tools="http://schemas.android.com/tools"
+	android:id="@+id/rootScroolView"
 	android:layout_width="match_parent"
 	android:layout_height="wrap_content"
 	android:fillViewport="true"
@@ -138,19 +139,19 @@
 
 
 
-		<SearchView
-			android:id="@+id/search_view"
-			android:layout_width="match_parent"
-			android:layout_height="wrap_content"
-			android:iconifiedByDefault="false"
-			android:queryHint="Search apps" />
+
 
 
 		<LinearLayout
 			android:orientation="horizontal"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content">
-
+			<SearchView
+				android:id="@+id/search_view"
+				android:layout_width="500px"
+				android:layout_height="wrap_content"
+				android:iconifiedByDefault="false"
+				android:queryHint="Search apps" />
 			<Button
 				android:id="@+id/refresh_button"
 				android:layout_width="wrap_content"
