@@ -25,8 +25,10 @@ import android.view.MotionEvent;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
+import android.view.inputmethod.InputMethodManager;
 import android.webkit.CookieManager;
 import android.webkit.DownloadListener;
+import android.webkit.GeolocationPermissions;
 import android.webkit.JavascriptInterface;
 import android.webkit.URLUtil;
 import android.webkit.ValueCallback;
@@ -94,6 +96,7 @@ public class LauncherActivity extends Activity {
 
 	@Override
     protected void onCreate(Bundle savedInstanceState) {
+		showtoast("oncreate");
 		super.onCreate(savedInstanceState);
 
 		setContentView(R.layout.activity_launcher);
@@ -133,7 +136,8 @@ public class LauncherActivity extends Activity {
 		super.onResume();
 		Utils.setViewSizeByPercentageOfScreen(LauncherActivity.this,webViews[currentWebViewIndex],launcherModel.webViewWidth,
 				launcherModel.webViewHeight);
-		loadApps();
+
+		showtoast("onResume");
 
 	}
 
@@ -250,6 +254,7 @@ public class LauncherActivity extends Activity {
 					launcherModel.webViewHeight);
 
 		}
+		webview1.loadUrl(launcherModel.urls[0]);
 		
 	}
 	
@@ -262,6 +267,7 @@ public class LauncherActivity extends Activity {
 		String appCachePath = getApplicationContext().getCacheDir().getAbsolutePath();
 		webView.getSettings().setDatabasePath(appCachePath);
 		webView.getSettings().setMediaPlaybackRequiresUserGesture(false); // May be necessary to play audio without user interaction
+		webView.getSettings().setGeolocationEnabled(true);
 
 		webView.setOnTouchListener(new View.OnTouchListener() {
 			@Override
@@ -284,6 +290,11 @@ public class LauncherActivity extends Activity {
 		});
 
 		webView.setWebChromeClient(new WebChromeClient() {
+			@Override
+			public void onGeolocationPermissionsShowPrompt(String origin, GeolocationPermissions.Callback callback) {
+				// Always grant permission since this is controlled by a permission prompt to the user
+				callback.invoke(origin, true, false);
+			}
 				@Override
 				public void onPermissionRequest(final PermissionRequest request) {
 					if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
@@ -354,6 +365,8 @@ public class LauncherActivity extends Activity {
 				i.setType("image/*");
 				startActivityForResult(Intent.createChooser(i, "File Chooser"), FILECHOOSER_RESULTCODE);
 			}
+
+
 
 
 			});
@@ -952,7 +965,7 @@ public class LauncherActivity extends Activity {
 	}
 	
 	public void showtoast(String msg){
-		Toast toast = Toast.makeText(getApplicationContext(), " " + msg, Toast.LENGTH_LONG);
+		Toast toast = Toast.makeText(getApplicationContext(), " " + msg, Toast.LENGTH_SHORT);
 		toast.show();
 		
 		
