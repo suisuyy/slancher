@@ -1,5 +1,6 @@
 package com.yourdomain.launcherapp.libs;
 
+import android.app.Activity;
 import android.content.Context;
 import android.util.DisplayMetrics;
 import android.view.View;
@@ -54,5 +55,12 @@ public class Utils {
 
             view.setLayoutParams(layoutParams);
         }
+
+    public void showtoast(String msg, Activity activity){
+        Toast toast = Toast.makeText(activity.getApplicationContext(), " " + msg, Toast.LENGTH_SHORT);
+        toast.show();
+
+
+    }
 
 }
