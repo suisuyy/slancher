@@ -1,5 +1,6 @@
 name: Android CI
 
+
 on:
   push:
     branches: [ "master" ]
@@ -24,3 +25,5 @@ jobs:
       run: chmod +x gradlew
     - name: Build with Gradle
       run: ./gradlew build
+    - name: Build and Release APK
+      uses: r0user/release-apk@V1.0
