@@ -1,4 +1,4 @@
-name: Minimal Android CI Workflow
+name: Android CI Workflow bk with test
 
 on:
   push:
