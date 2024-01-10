@@ -9,7 +9,7 @@ android {
     defaultConfig {
         applicationId = "com.yourdomain.launcherapp"
         minSdk = 24
-        targetSdk = 30
+        targetSdk = 34
         versionCode = 1
         versionName = "1.0"
 
@@ -29,6 +29,7 @@ android {
     buildFeatures {
         viewBinding = true
     }
+    buildToolsVersion = "34.0.0"
 }
 
 
