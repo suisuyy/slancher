@@ -23,10 +23,13 @@ public class LauncherModel {
     public int gridViewHeight = 400;
     public int webViewHeight = 50;
     public int webViewWidth = 100;
+    public int currentScale=150;
+
     public int webViewNumber = 5;
     public int appgridViewWidth = 100;
     public int appgridViewHeight = 50;
     public int appgridViewColums = 8;
+
 
     public int appLabelSize=9;
 

@@ -80,7 +80,6 @@ public class LauncherActivity extends Activity {
 
 	private ScrollView scrollView;
 	private WebView webview1, webview2, webview3, webview4, webview5;
-	int currentScale=100;
 	private WebView[] webViews;
 	private int currentWebViewIndex = 0;
 	private EditText urlInput;
@@ -403,10 +402,11 @@ public class LauncherActivity extends Activity {
 		increaseHeightButton.setOnLongClickListener(new View.OnLongClickListener() {
 			@Override
 			public boolean onLongClick(View v) {
-				currentScale+=10;
+				launcherModel.currentScale+=20;
+				launcherModel.saveSettings();
 				WebView webView=webViews[currentWebViewIndex];
-				webView.setInitialScale(currentScale);
-				showtoast(String.valueOf(currentScale));
+				webView.setInitialScale(launcherModel.currentScale);
+				showtoast(String.valueOf(launcherModel.currentScale));
 				return true;
 			}
 		});
@@ -429,10 +429,11 @@ public class LauncherActivity extends Activity {
 		decreaseHeightButton.setOnLongClickListener(new View.OnLongClickListener() {
 			@Override
 			public boolean onLongClick(View v) {
-				currentScale-=10;
+				launcherModel.currentScale-=20;
+				launcherModel.saveSettings();
 				WebView webView=webViews[currentWebViewIndex];
-				webView.setInitialScale(currentScale);
-				showtoast(String.valueOf(currentScale));
+				webView.setInitialScale(launcherModel.currentScale);
+				showtoast(String.valueOf(launcherModel.currentScale));
 				return true;
 			}
 		});
