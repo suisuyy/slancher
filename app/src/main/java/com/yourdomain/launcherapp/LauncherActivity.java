@@ -13,6 +13,7 @@ import android.content.ActivityNotFoundException;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.graphics.Rect;
 import android.media.AudioManager;
 import android.net.Uri;
@@ -79,6 +80,7 @@ public class LauncherActivity extends Activity {
 
 	private ScrollView scrollView;
 	private WebView webview1, webview2, webview3, webview4, webview5;
+	int currentScale=100;
 	private WebView[] webViews;
 	private int currentWebViewIndex = 0;
 	private EditText urlInput;
@@ -110,7 +112,7 @@ public class LauncherActivity extends Activity {
 		loadWeb();
 		addEventListener();
 
-		requestPermissions();
+		AllFunctionWebviewSetter.requestPermissions(this);
 
 
 
@@ -151,29 +153,8 @@ public class LauncherActivity extends Activity {
 	@Override
 	public void onActivityResult(int requestCode, int resultCode, Intent intent)
 	{
-		//for webview file pick
-		if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
-		{
-			if (requestCode == REQUEST_SELECT_FILE)
-			{
-				if (uploadMessage == null)
-					return;
-				uploadMessage.onReceiveValue(WebChromeClient.FileChooserParams.parseResult(resultCode, intent));
-				uploadMessage = null;
-			}
-		}
-		else if (requestCode == FILECHOOSER_RESULTCODE)
-		{
-			if (null == mUploadMessage)
-				return;
-			// Use MainActivity.RESULT_OK if you're implementing WebView inside Fragment
-			// Use RESULT_OK only if you're implementing WebView inside an Activity
-			Uri result = intent == null || resultCode != LauncherActivity.RESULT_OK ? null : intent.getData();
-			mUploadMessage.onReceiveValue(result);
-			mUploadMessage = null;
-		}
 
-
+		AllFunctionWebviewSetter.onActivityResult(requestCode,resultCode,intent);
 	}
 
 	@Override
@@ -186,37 +167,6 @@ public class LauncherActivity extends Activity {
 		    }
 	}
 
-	public void requestPermissions() {
-		List<String> permissionsToRequest = new ArrayList<>();
-
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-			if (checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-				permissionsToRequest.add(Manifest.permission.WRITE_EXTERNAL_STORAGE);
-			}
-
-			if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
-				permissionsToRequest.add(Manifest.permission.RECORD_AUDIO);
-			}
-
-			if (checkSelfPermission(Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
-				permissionsToRequest.add(Manifest.permission.CAMERA);
-			}
-
-			if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-				permissionsToRequest.add(Manifest.permission.ACCESS_FINE_LOCATION);
-			}
-
-			if (!Settings.System.canWrite(this)) {
-				// If the WRITE_SETTINGS permission is not granted, open the system settings to request permission
-				permissionsToRequest.add(Settings.ACTION_MANAGE_WRITE_SETTINGS);
-			}
-
-			if (!permissionsToRequest.isEmpty()) {
-				String[] permissionsArray = permissionsToRequest.toArray(new String[0]);
-				requestPermissions(permissionsArray, 1);
-			}
-		}
-	}
 
 	private void  setupAppgridView(){
 		appsGrid=findViewById(R.id.apps_grid);
@@ -249,7 +199,8 @@ public class LauncherActivity extends Activity {
 
 		for (WebView webView:
 			 webViews) {
-			setWebView(webView);
+			//setWebView(webView);
+			AllFunctionWebviewSetter.setWebView(webView,LauncherActivity.this,LauncherActivity.this.getApplicationContext(),urlInput);
 			Utils.setViewSizeByPercentageOfScreen(this,webView,launcherModel.webViewWidth,
 					launcherModel.webViewHeight);
 
@@ -258,229 +209,7 @@ public class LauncherActivity extends Activity {
 		
 	}
 	
-	@SuppressLint("SetJavaScriptEnabled")
-	private void setWebView(WebView webView){
-		// Enable JavaScript if required by the web content
-        webView.getSettings().setJavaScriptEnabled(true);
-		webView.getSettings().setDomStorageEnabled(true);
-		webView.getSettings().setCacheMode(WebSettings.LOAD_DEFAULT);
-		String appCachePath = getApplicationContext().getCacheDir().getAbsolutePath();
-		webView.getSettings().setDatabasePath(appCachePath);
-		webView.getSettings().setMediaPlaybackRequiresUserGesture(false); // May be necessary to play audio without user interaction
-		webView.getSettings().setGeolocationEnabled(true);
 
-		webView.setOnTouchListener(new View.OnTouchListener() {
-			@Override
-			public boolean onTouch(View v, MotionEvent event) {
-				// The onTouchEvent will be triggered before the ScrollView touches, so we can disable the scroll here
-				switch (event.getAction()) {
-					case MotionEvent.ACTION_DOWN:
-						// Disables the ScrollView to intercept touch events
-						v.getParent().requestDisallowInterceptTouchEvent(true);
-						break;
-					case MotionEvent.ACTION_UP:
-						// Allows ScrollView to intercept touch events
-						v.getParent().requestDisallowInterceptTouchEvent(false);
-						break;
-				}
-				// Handle WebView touch events
-				v.onTouchEvent(event);
-				return true;
-			}
-		});
-
-		webView.setWebChromeClient(new WebChromeClient() {
-			@Override
-			public void onGeolocationPermissionsShowPrompt(String origin, GeolocationPermissions.Callback callback) {
-				// Always grant permission since this is controlled by a permission prompt to the user
-				callback.invoke(origin, true, false);
-			}
-				@Override
-				public void onPermissionRequest(final PermissionRequest request) {
-					if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-						request.grant(request.getResources());
-					}
-				}
-				
-				@Override
-				public boolean onConsoleMessage(ConsoleMessage consoleMessage) {
-					Log.d("MyApplication", consoleMessage.message() + " -- From line "
-						  + consoleMessage.lineNumber() + " of "
-						  + consoleMessage.sourceId());
-						 // showtoast(consoleMessage.message());
-					return super.onConsoleMessage(consoleMessage);
-				}
-			// For 3.0+ Devices (Start)
-			// onActivityResult attached before constructor
-			protected void openFileChooser(ValueCallback uploadMsg, String acceptType)
-			{
-				mUploadMessage = uploadMsg;
-				Intent i = new Intent(Intent.ACTION_GET_CONTENT);
-				i.addCategory(Intent.CATEGORY_OPENABLE);
-				i.setType("image/*");
-				startActivityForResult(Intent.createChooser(i, "File Browser"), FILECHOOSER_RESULTCODE);
-			}
-
-
-			// For Lollipop 5.0+ Devices
-			public boolean onShowFileChooser(WebView mWebView, ValueCallback<Uri[]> filePathCallback, WebChromeClient.FileChooserParams fileChooserParams)
-			{
-				if (uploadMessage != null) {
-					uploadMessage.onReceiveValue(null);
-					uploadMessage = null;
-				}
-
-				uploadMessage = filePathCallback;
-
-				Intent intent = null;
-				if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
-					intent = fileChooserParams.createIntent();
-				}
-				try
-				{
-					startActivityForResult(intent, REQUEST_SELECT_FILE);
-				} catch (ActivityNotFoundException e)
-				{
-					uploadMessage = null;
-					return false;
-				}
-				return true;
-			}
-
-			//For Android 4.1 only
-			protected void openFileChooser(ValueCallback<Uri> uploadMsg, String acceptType, String capture)
-			{
-				mUploadMessage = uploadMsg;
-				Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-				intent.addCategory(Intent.CATEGORY_OPENABLE);
-				intent.setType("image/*");
-				startActivityForResult(Intent.createChooser(intent, "File Browser"), FILECHOOSER_RESULTCODE);
-			}
-
-			protected void openFileChooser(ValueCallback<Uri> uploadMsg)
-			{
-				mUploadMessage = uploadMsg;
-				Intent i = new Intent(Intent.ACTION_GET_CONTENT);
-				i.addCategory(Intent.CATEGORY_OPENABLE);
-				i.setType("image/*");
-				startActivityForResult(Intent.createChooser(i, "File Chooser"), FILECHOOSER_RESULTCODE);
-			}
-
-
-
-
-			});
-
-		webView.setWebViewClient(new WebViewClient() {
-			public void onPageFinished(WebView view, String url) {
-				// Update EditText when a new page finishes loading
-				  urlInput.setText(url);
-
-			}
-
-			@Override
-				public boolean shouldOverrideUrlLoading(WebView view, String url) {
-					view.loadUrl(url);
-					return true; // Indicates WebView to handle the URL
-				}
-				
-				@Override
-				public void onReceivedError(WebView view, WebResourceRequest request, WebResourceError error) {
-					super.onReceivedError(view, request, error);
-					// Handle error
-					//showtoast(error.toString());
-				}
-				
-				
-			});
-
-		webView.setDownloadListener(new DownloadListener() {
-			@Override
-			public void onDownloadStart(String url, String userAgent,
-										String contentDisposition, String mimetype,
-										long contentLength) {
-
-
-				try {
-
-					DownloadManager.Request request = new DownloadManager.Request(Uri.parse(url));
-					request.setMimeType(mimetype);
-					String cookies = CookieManager.getInstance().getCookie(url);
-					request.addRequestHeader("cookie", cookies);
-					request.addRequestHeader("User-Agent", userAgent);
-					request.setDescription("Downloading file...");
-					request.setTitle(URLUtil.guessFileName(url, contentDisposition, mimetype));
-					request.allowScanningByMediaScanner();
-					request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
-
-					// Get download service and enqueue file
-					DownloadManager downloadManager = (DownloadManager) getSystemService(DOWNLOAD_SERVICE);
-					if (downloadManager != null) {
-						downloadManager.enqueue(request);
-					}
-
-					// To save downloaded file to device's Download folder
-					request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, URLUtil.guessFileName(url, contentDisposition, mimetype));
-					// Enqueue the download. The download will start automatically once the download manager is ready
-					long downloadID = downloadManager.enqueue(request);
-
-					// Optionally, you can track the download progress here using the download ID
-				}
-				catch (Exception e){
-					showtoast(e.toString());
-				}
-			}
-		});
-
-
-
-		// Handle back navigation in WebView
-        webView.setOnKeyListener(new View.OnKeyListener() {
-				@Override
-				public boolean onKey(View v, int keyCode, KeyEvent event) {
-					if (event.getAction() == KeyEvent.ACTION_DOWN) {
-						switch (keyCode) {
-							case KeyEvent.KEYCODE_BACK:
-								if (webView.canGoBack()) {
-									webView.goBack();
-									return true;
-								}
-
-							case  KeyEvent.KEYCODE_HOME:
-								//not work to home key
-
-								break;
-						}
-					}
-					return false;
-				}
-			});
-
-		//clipboard paster
-
-
-
-		// Set up the button click listener to load the URL
-        final EditText urlInput = findViewById(R.id.url_input);
-		
-        Button openUrlButton = findViewById(R.id.open_url_button);
-        openUrlButton.setOnClickListener(new View.OnClickListener() {
-				@Override
-				public void onClick(View v) {
-					WebView webView=webViews[currentWebViewIndex];
-					webView.setVisibility(View.VISIBLE);
-					String url = urlInput.getText().toString().trim();
-					if (!url.isEmpty()) {
-						if (!url.startsWith("http://") && !url.startsWith("https://")) {
-							url = launcherModel.searchEnginUrl + url; // Add scheme if missing
-						}
-						webView.clearCache(true);
-						webView.loadUrl(url); // Load the URL in the WebView
-					}
-				}
-			});
-
-	}
 
 	private void addEventListener(){
 		Button settingsButton = findViewById(R.id.settings_button);
@@ -499,7 +228,42 @@ public class LauncherActivity extends Activity {
 			}
 		});
 
+		final EditText urlInput = findViewById(R.id.url_input);
 
+		Button openUrlButton = findViewById(R.id.open_url_button);
+		openUrlButton.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				WebView webView=webViews[currentWebViewIndex];
+				webView.setVisibility(View.VISIBLE);
+				String mobileUserAgent = "Mozilla/5.0 (Linux; Android 10; Pixel 3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.66 Mobile Safari/537.36";
+				webView.getSettings().setUserAgentString(mobileUserAgent);
+
+				String url = urlInput.getText().toString().trim();
+				if (!url.isEmpty()) {
+
+					if (!url.startsWith("http://") && !url.startsWith("https://")) {
+						url = launcherModel.searchEnginUrl + url; // Add scheme if missing
+					}
+					webView.clearCache(true);
+					webView.loadUrl(url); // Load the URL in the WebView
+					launcherModel.urls[currentWebViewIndex]=url;
+					launcherModel.saveSettings();
+				}
+				showtoast("long click to change to desktop mode ");
+			}
+		});
+
+		openUrlButton.setOnLongClickListener(new View.OnLongClickListener() {
+			@Override
+			public boolean onLongClick(View v) {
+				WebView webView=webViews[LauncherActivity.this.currentWebViewIndex];
+				 String desktopUserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36";
+				 webView.getSettings().setUserAgentString(desktopUserAgent);
+				 webView.loadUrl(urlInput.getText().toString());
+				return true;
+			}
+		});
 		searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
 			@Override
 			public boolean onQueryTextSubmit(String query) {
@@ -517,6 +281,7 @@ public class LauncherActivity extends Activity {
 
 				if(newText.length()<=0){
 					loadApps();
+					return true;
 				}
 
 				appsList=new ArrayList<>();
@@ -550,9 +315,17 @@ public class LauncherActivity extends Activity {
 		refreshButton.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
+				showtoast("refresh applist, long press to restart app");
 				refreshAppList(); // Refresh the app list when the button is clicked
 			}
 		});
+		refreshButton.setOnLongClickListener((View.OnLongClickListener) v -> {
+			Intent intent = getIntent();
+			finish();
+			startActivity(intent);
+			return true;
+		});
+
 
 
 		appsGrid.setOnTouchListener(new View.OnTouchListener() {
@@ -625,10 +398,16 @@ public class LauncherActivity extends Activity {
 							launcherModel.webViewHeight
 					);
 				}
-
-
-
-
+			}
+		});
+		increaseHeightButton.setOnLongClickListener(new View.OnLongClickListener() {
+			@Override
+			public boolean onLongClick(View v) {
+				currentScale+=10;
+				WebView webView=webViews[currentWebViewIndex];
+				webView.setInitialScale(currentScale);
+				showtoast(String.valueOf(currentScale));
+				return true;
 			}
 		});
 
@@ -647,6 +426,17 @@ public class LauncherActivity extends Activity {
 				}
 			}
 		});
+		decreaseHeightButton.setOnLongClickListener(new View.OnLongClickListener() {
+			@Override
+			public boolean onLongClick(View v) {
+				currentScale-=10;
+				WebView webView=webViews[currentWebViewIndex];
+				webView.setInitialScale(currentScale);
+				showtoast(String.valueOf(currentScale));
+				return true;
+			}
+		});
+
 
 
 		Button changeWebViewButton = findViewById(R.id.change_webview_button);
@@ -777,16 +567,6 @@ public class LauncherActivity extends Activity {
 			}
 		});
 
-
-		Button restartButton = findViewById(R.id.restartButton);
-		 restartButton.setOnLongClickListener((View.OnLongClickListener) v -> {
-			 Intent intent = getIntent();
-			 finish();
-			 startActivity(intent);
-			 return true;
-		 });
-
-
 		 Button hideUrlButton=findViewById(R.id.hideUrlButton);
 		hideUrlButton.setOnClickListener(new View.OnClickListener() {
 			@Override
@@ -805,49 +585,7 @@ public class LauncherActivity extends Activity {
 
 }
 
-	private void setScreenBrightness(int brightness) {
-		// Adjust the screen brightness using the Settings.System API
 
-	}
-
-
-	private  void freeLaunch(Intent intent){
-
-			// Define the bounds in which the Activity will be launched into.
-			Rect bounds = new Rect(100, 100, 300, 300);
-
-			// Set the bounds as an activity option.
-			ActivityOptions options = ActivityOptions.makeBasic();
-			options.setLaunchBounds(bounds);
-
-			// Start the LaunchBoundsActivity with the specified options
-			startActivity(intent, options.toBundle());
-			return;
-
-
-/*// Check if the device is running on Android Nougat (7.0, API level 24) or higher
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-			// Set flag to indicate the activity should be launched in freeform mode
-
-
-			Rect rect = new Rect(0, 0, 500, 500); // Example bounds
-			ActivityOptions options = ActivityOptions.makeBasic();
-			options.setLaunchBounds(rect);
-
-			try {
-				Method method = ActivityOptions.class.getMethod("setLaunchWindowingMode", int.class);
-				method.invoke(options, 5);
-			}catch (Exception e){
-				Log.i("FreeForm", "getActivityOptions error = " + e);
-			}
-			// Start the activity with the specified options
-			startActivity(intent, options.toBundle());
-		} else {
-			// If the device is not running on Android Nougat or higher,
-			// or does not support freeform mode, launch the activity normally
-			startActivity(intent);
-		}*/
-	}
     private void loadApps() {
 		appsList=new ArrayList<>();
 		

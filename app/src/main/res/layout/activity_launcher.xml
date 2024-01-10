@@ -1,221 +1,208 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-	xmlns:tools="http://schemas.android.com/tools"
-	android:id="@+id/rootScroolView"
-	android:layout_width="match_parent"
-	android:layout_height="wrap_content"
-	android:fillViewport="true"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/rootScroolView"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:fillViewport="true"
 
-	>
+    >
 
-	<LinearLayout
-		android:layout_width="match_parent"
-		android:layout_height="wrap_content"
-		android:orientation="vertical"
-		tools:ignore="WebViewLayout">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        tools:ignore="WebViewLayout">
+
+        <EditText
+            android:id="@+id/url_input"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:focusedByDefault="false"
+            android:hint="Enter URL"
+            android:minLines="2" />
+
+        <FrameLayout
+            android:id="@+id/webview_container"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <WebView
+                android:id="@+id/webview1"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:visibility="visible" />
+
+            <WebView
+                android:id="@+id/webview2"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:visibility="gone" />
+
+            <WebView
+                android:id="@+id/webview3"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:visibility="gone" />
+
+            <WebView
+                android:id="@+id/webview4"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:visibility="gone" />
+
+            <WebView
+                android:id="@+id/webview5"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:visibility="gone" />
 
 
-		<EditText
-			android:id="@+id/url_input"
-			android:layout_width="match_parent"
-			android:layout_height="wrap_content"
-			android:hint="Enter URL"
-			android:minLines="2"
-			android:focusedByDefault="false"
-			/>
+        </FrameLayout>
 
-		<!-- SearchView for searching apps -->
-
-		<!-- Button to refresh content -->
-
-		<LinearLayout
-			android:layout_width="match_parent"
-			android:layout_height="match_parent"
-			android:orientation="horizontal">
-
-			<Button
-				style="@style/FuturisticButton"
-				android:id="@+id/open_url_button"
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				android:text="🌐" />
-
-			<Button
-				style="@style/FuturisticButton"
-				android:id="@+id/increase_height_button"
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				android:text="▼" />
-
-			<Button
-
-				android:id="@+id/decrease_height_button"
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				style="@style/FuturisticButton"
-
-				android:text="▲" />
-
-			<Button
-				style="@style/FuturisticButton"
-
-				android:id="@+id/settings_button"
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				android:text="⚙" />
-
-			<Button
-				style="@style/FuturisticButton"
-				android:id="@+id/change_webview_button"
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				android:text="▷" />
-
-			<Button
-				style="@style/FuturisticButton"
-
-				android:id="@+id/fullscreenButton"
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				android:layout_alignParentTop="true"
-				android:layout_alignParentEnd="true"
-				android:text="□" />
-
-			<Button
-				style="@style/FuturisticButton"
-				android:id="@+id/hideUrlButton"
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				android:layout_below="@id/restartButton"
-				android:layout_centerHorizontal="true"
-				android:text="👁" />
-		</LinearLayout>
+        <HorizontalScrollView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal">
 
 
 
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <Button
+                    android:id="@+id/open_url_button"
+                    style="@style/FuturisticButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="🌐" />
+
+                <Button
+                    android:id="@+id/increase_height_button"
+                    style="@style/FuturisticButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="▼" />
+
+                <Button
+
+                    android:id="@+id/decrease_height_button"
+                    style="@style/FuturisticButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+
+                    android:text="▲" />
+
+
+                <Button
+                    android:id="@+id/change_webview_button"
+                    style="@style/FuturisticButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="▷" />
+
+                <Button
+                    android:id="@+id/fullscreenButton"
+
+                    style="@style/FuturisticButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentTop="true"
+                    android:layout_alignParentEnd="true"
+                    android:text="□" />
+
+                <Button
+                    android:id="@+id/hideUrlButton"
+                    style="@style/FuturisticButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/restartButton"
+                    android:layout_centerHorizontal="true"
+                    android:text="👁" />
 
 
 
+                <Button
+                    android:id="@+id/settings_button"
 
-			<FrameLayout
-				android:id="@+id/webview_container"
-				android:layout_width="match_parent"
-				android:layout_height="match_parent"
-				>
+                    style="@style/FuturisticButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="⚙" />
 
-				<WebView
-					android:id="@+id/webview1"
-					android:layout_width="match_parent"
-					android:layout_height="match_parent"
-					android:visibility="visible" />
+                <Button
+                    android:id="@+id/refresh_button"
+                    style="@style/FuturisticButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
 
-				<WebView
-					android:id="@+id/webview2"
-					android:layout_width="match_parent"
-					android:layout_height="match_parent"
-					android:visibility="gone" />
+                    android:text="⟳"
+                    android:textSize="10sp" />
 
-				<WebView
-					android:id="@+id/webview3"
-					android:layout_width="match_parent"
-					android:layout_height="match_parent"
-					android:visibility="gone" />
-				<WebView
-					android:id="@+id/webview4"
-					android:layout_width="match_parent"
-					android:layout_height="match_parent"
-					android:visibility="gone" />
-
-				<WebView
-					android:id="@+id/webview5"
-					android:layout_width="match_parent"
-					android:layout_height="match_parent"
-					android:visibility="gone" />
+                <Button
+                    android:id="@+id/restartButton"
 
 
-			</FrameLayout>
+                    style="@style/FuturisticButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/brightnessSeekBar"
+                    android:layout_centerHorizontal="true"
+                    android:layout_marginTop="16dp"
+                    android:text="☰" />
 
+                <SearchView
+                    android:id="@+id/search_view"
+                    android:layout_width="500px"
+                    android:layout_height="wrap_content"
+                    android:iconifiedByDefault="false"
+                    android:queryHint="Search apps" />
 
-
-
-
-
-
-
-		<LinearLayout
-			android:orientation="horizontal"
-			android:layout_width="match_parent"
-			android:layout_height="wrap_content">
-			<SearchView
-				android:id="@+id/search_view"
-				android:layout_width="500px"
-				android:layout_height="wrap_content"
-				android:iconifiedByDefault="false"
-				android:queryHint="Search apps" />
-			<Button
-				android:id="@+id/refresh_button"
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				android:text="Refresh Apps"
-				style="@style/FuturisticButton"
-
-
-				/>
-
-			<Button
-				style="@style/FuturisticButton"
-
-				android:id="@+id/restartButton"
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				android:layout_below="@id/brightnessSeekBar"
-				android:layout_centerHorizontal="true"
-				android:layout_marginTop="16dp"
-				android:text="Restart" />
-
-
-		</LinearLayout>
-
-
-
-		<GridView
-			android:id="@+id/apps_grid"
-			android:layout_width="match_parent"
-			android:layout_height="300px"
-			android:gravity="center"
-			android:horizontalSpacing="10dp"
-			android:numColumns="auto_fit"
-			android:stretchMode="columnWidth"
-			 />
-
-		<LinearLayout
-			android:layout_width="match_parent"
-			android:layout_height="match_parent"
-			android:orientation="vertical">
-
-			<SeekBar
-				android:id="@+id/soundSeekBar"
-				android:layout_width="match_parent"
-				android:layout_height="wrap_content"
-				android:layout_marginLeft="16dp"
-				android:layout_marginRight="16dp"
-				android:thumb="@android:drawable/ic_media_play"
-				android:progress="50" />
-
-			<SeekBar
-				android:id="@+id/brightnessSeekBar"
-				android:layout_width="match_parent"
-				android:layout_height="wrap_content"
-
-				android:layout_marginLeft="16dp"
-				android:layout_marginRight="16dp"
-				android:thumb="@android:drawable/btn_star"
-				android:progress="50" />
+            </LinearLayout>
+        </HorizontalScrollView>
 
 
 
 
-		</LinearLayout>
 
-	</LinearLayout>
+
+        <GridView
+            android:id="@+id/apps_grid"
+            android:layout_width="match_parent"
+            android:layout_height="300px"
+            android:gravity="center"
+            android:horizontalSpacing="10dp"
+            android:numColumns="auto_fit"
+            android:stretchMode="columnWidth" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+            <SeekBar
+                android:id="@+id/soundSeekBar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="16dp"
+                android:layout_marginRight="16dp"
+                android:progress="50"
+                android:thumb="@android:drawable/ic_media_play" />
+
+            <SeekBar
+                android:id="@+id/brightnessSeekBar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+
+                android:layout_marginLeft="16dp"
+                android:layout_marginRight="16dp"
+                android:progress="50"
+                android:thumb="@android:drawable/btn_star" />
+
+
+        </LinearLayout>
+
+    </LinearLayout>
 </ScrollView>
