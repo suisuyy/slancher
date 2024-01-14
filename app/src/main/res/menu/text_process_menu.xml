@@ -1,0 +1,12 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/action_hide_toolbar"
+        android:title="Hide Toolbar"/>
+    <item
+        android:id="@+id/action_custom_item1"
+        android:title="Custom Item 1"/>
+    <item
+        android:id="@+id/action_custom_item2"
+        android:title="Custom Item 2"/>
+    <!-- Add more items as needed -->
+</menu>

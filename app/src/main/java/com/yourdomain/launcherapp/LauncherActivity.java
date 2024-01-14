@@ -13,14 +13,19 @@ import android.content.ActivityNotFoundException;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
+import android.content.IntentFilter;
+import android.content.pm.ShortcutInfo;
+import android.content.pm.ShortcutManager;
 import android.graphics.Bitmap;
 import android.graphics.Rect;
+import android.graphics.drawable.Icon;
 import android.media.AudioManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.os.Environment;
+import android.os.Parcelable;
 import android.provider.Settings;
 import android.view.MotionEvent;
 import android.view.ViewGroup;
@@ -49,6 +54,7 @@ import android.widget.BaseAdapter;
 import android.widget.ScrollView;
 import android.widget.SearchView;
 import android.widget.SeekBar;
+import android.widget.TextView;
 import android.widget.Toast;
 import android.content.SharedPreferences;
 import android.widget.Button;
@@ -99,8 +105,9 @@ public class LauncherActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
 		showtoast("oncreate");
 		super.onCreate(savedInstanceState);
-
 		setContentView(R.layout.activity_launcher);
+
+
 		scrollView=findViewById(R.id.rootScroolView);
 
         packageManager = getPackageManager();
@@ -112,7 +119,6 @@ public class LauncherActivity extends Activity {
 		addEventListener();
 
 		AllFunctionWebviewSetter.requestPermissions(this);
-
 
 
 		
@@ -137,9 +143,6 @@ public class LauncherActivity extends Activity {
 		super.onResume();
 		Utils.setViewSizeByPercentageOfScreen(LauncherActivity.this,webViews[currentWebViewIndex],launcherModel.webViewWidth,
 				launcherModel.webViewHeight);
-
-		showtoast("onResume");
-
 	}
 
 	@Override
@@ -166,6 +169,8 @@ public class LauncherActivity extends Activity {
 		    }
 	}
 
+
+	//
 
 	private void  setupAppgridView(){
 		appsGrid=findViewById(R.id.apps_grid);
@@ -582,7 +587,27 @@ public class LauncherActivity extends Activity {
 			}
 		});
 
+		SeekBar seekBar = findViewById(R.id.font_size_slider);
+		TextView fontSizeValue = findViewById(R.id.font_size_value);
+		seekBar.setProgress(100);
+		seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+			@Override
+			public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+				if (fromUser) {
+					WebView webView = webViews[currentWebViewIndex]; // Replace this with your WebView ID
+					webView.getSettings().setTextZoom(progress);
+					fontSizeValue.setText(String.format("%d", progress));
+				}
+			}
+			@Override
+			public void onStartTrackingTouch(SeekBar seekBar) {
 
+			}
+			@Override
+			public void onStopTrackingTouch(SeekBar seekBar) {
+
+			}
+		});
 
 }
 
@@ -719,8 +744,35 @@ public class LauncherActivity extends Activity {
 		view.getLayoutParams().height = screenHeight;
 		view.getLayoutParams().width = screenWidth;
 	}
-	
-	
+
+	private  void addHomeFunction(){
+		if (getIntent().getAction() != null &&
+				getIntent().getAction().equals("com.android.launcher.action.INSTALL_SHORTCUT")) {
+			handleShortcutIntent(getIntent());
+		} else {
+			// Handle other cases or continue with normal launcher behavior
+		}
+	}
+
+	private void handleShortcutIntent(Intent intent) {
+		// Extract information from the intent
+		String shortcutLabel = intent.getStringExtra(Intent.EXTRA_SHORTCUT_NAME);
+		Parcelable iconResourceParcelable = intent.getParcelableExtra(Intent.EXTRA_SHORTCUT_ICON_RESOURCE);
+
+		showtoast("test"+shortcutLabel);
+		urlInput.setText("added");
+		// Do something with the shortcut information, e.g., add it to your launcher
+		// You can use shortcutLabel for the label and iconResourceParcelable for the icon
+
+		// Optionally, you can also retrieve the Intent associated with the shortcut
+		Intent shortcutIntent = intent.getParcelableExtra(Intent.EXTRA_SHORTCUT_INTENT);
+
+		// Now, you can use shortcutIntent to launch the app or perform any desired action
+	}
+
+
+
+
 }
 
 
